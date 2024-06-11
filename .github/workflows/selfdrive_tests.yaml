@@ -124,6 +124,23 @@ jobs:
       timeout-minutes: 4
       run: ${{ env.RUN }} "unset PYTHONWARNINGS && pre-commit run --all && chmod -R 777 /tmp/pre-commit"
 
+  unit_tests_thin:
+    name: unit tests thin
+    runs-on: ${{ (
+                   (github.repository == 'commaai/openpilot') &&
+                   ((github.event_name != 'pull_request') ||
+                    (github.event.pull_request.head.repo.full_name == 'commaai/openpilot'))
+                 ) && 
+                  'namespace-profile-amd64-8x16' ||
+                  'ubuntu-latest' }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - uses: ./.github/workflows/setup-with-retry
+      with:
+        docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
+  
   unit_tests:
     name: unit tests
     runs-on: ${{ (
